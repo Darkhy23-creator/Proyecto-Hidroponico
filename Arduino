@@ -1,0 +1,90 @@
+#include <ESP8266WiFi.h>
+
+const int sensorPin = 10;
+const int electrovalvula = 11;
+const char* sid = "M1P1erPr0Y3ct";
+const char* password = "PXS37AS";
+const char* host = "Proyecto_Hidroponico";
+
+void setup() {
+  Serial.begin(9600);
+  Serial.begin(9600);
+  pinMode(sensorPin, INPUT);
+  pinMode(electrovalvula, OUTPUT);
+  //define los pines en que van a estar conectados el sensor y la valvula,
+  //tambien los define como entrada de voltaje y salida de voltaje respectivamente.
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ...")
+  Serial.print(sid)
+
+  WiFi.begin(sid, password)
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi Connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  int humedad = digitalRead(sensorPin); 
+  int valvula = digitalRead(electrovalvula);
+  //mandar mensaje a puerto serie en función del valor leído
+  if (humedad == HIGH) {
+    Serial.println("Baja humedad");   
+    digitalWrite(11, HIGH); 
+
+  }
+  if (humedad == LOW) {
+    
+    Serial.println("Alta humedad");   
+    digitalWrite(11, LOW); 
+  }
+
+  delay(5000);
+
+  Serial.print("Connecting to ");
+  Serial.println(host);
+
+  //Usamos la clasae WiFiClient para crear las conexiones TCP
+  WiFiClient cliente;
+  const int httpPort = 80;
+  if (!client.connect(host, httpPort)) {
+    Serial.println("Connection failed");
+    return;
+  }
+
+  String url = "/sensor.php";
+  String key = "";
+  String dato = "&Humedad=";
+
+                Serial.print("Request URL: ");
+  Serial.println(url);
+
+
+  Cliente.print(String("Get ") + url + key + dato + humedad + "HTTP/1.1\r\"Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
+  unsigned long timeout = millis();
+  while (Client.available() == 0) {
+    if (millis() - timeout > 5000) {
+      Serial.println(">>>Client timeout !");
+      cliente.stop();
+      return;
+    }
+  }
+
+  while (Client.available()) {
+    String line = Client.readStringUntil("\r");
+    Serial.print(line);
+
+  }
+
+  Serial.println();
+  Serial.println("Closing Connection");
+
+  delay(60000)
+}
